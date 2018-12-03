@@ -1,0 +1,5 @@
+{
+    "model": "fat",
+    "partition": 100,
+    "block": 512
+}

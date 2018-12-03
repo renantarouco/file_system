@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/renan/workspace/cpp/file_system/build",
-  "command": "/usr/bin/g++-7    -g   -o CMakeFiles/file_system.dir/src/main.cpp.o -c /home/renan/workspace/cpp/file_system/src/main.cpp",
-  "file": "/home/renan/workspace/cpp/file_system/src/main.cpp"
-}
-]

@@ -1,3 +1,0 @@
-/home/renan/workspace/cpp/file_system/build/CMakeFiles/edit_cache.dir
-/home/renan/workspace/cpp/file_system/build/CMakeFiles/rebuild_cache.dir
-/home/renan/workspace/cpp/file_system/build/CMakeFiles/file_system.dir

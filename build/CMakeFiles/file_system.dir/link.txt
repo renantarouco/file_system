@@ -1,1 +1,0 @@
-/usr/bin/g++-7  -g  -rdynamic CMakeFiles/file_system.dir/src/main.cpp.o  -o file_system 
