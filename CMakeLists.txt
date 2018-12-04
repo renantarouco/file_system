@@ -2,14 +2,8 @@ cmake_minimum_required(VERSION 3.12)
 project(file_system VERSION 0.0.0 LANGUAGES CXX)
 add_compile_options(-std=c++11)
 
-set(JSON_BuildTests OFF CACHE INTERNAL "")
-add_subdirectory(
-    lib/nlohmann_json
-)
-
 include_directories(
     include
-    lib/nlohmann_json/single_include
 )
 
 add_library(
@@ -29,12 +23,11 @@ target_link_libraries(
 )
 
 add_executable(
-    file_system
-    src/main.cpp
+    terminal
+    src/cli/terminal.cpp
 )
 
-target_link_libraries(
-    file_system
-    fs_driver
-    nlohmann_json::nlohmann_json
+add_executable(
+    format
+    src/cli/format.cpp
 )

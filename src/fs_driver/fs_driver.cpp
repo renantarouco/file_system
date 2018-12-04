@@ -5,7 +5,7 @@ FSDriver::FSDriver(
 ) : _partition_size(partition_size), _block_size(block_size) {
     std::cout << "Starting file system driver..." << std::endl;
     std::cout << "MODEL: " << fs_model_name << std::endl;
-    std::cout << "PARTTITION SIZE: " << _partition_size << std::endl;
+    std::cout << "PARTTITION SIZE: " << _partition_size * MB << std::endl;
     std::cout << "BLOCK SIZE: " << _block_size << std::endl;
     std::cout << "DONE!" << std::endl;
     if (fs_model_name == "fat") _file_system_model = new FATModel();
