@@ -10,7 +10,7 @@
 
 class FSDriver {
 private:
-    FSModel *_file_system_model;
+    FSModel _file_system_model;
     uint _partition_size;
     uint _block_size;
 public:

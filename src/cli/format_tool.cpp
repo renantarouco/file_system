@@ -1,24 +1,19 @@
-#include <iostream> 
-#include <bits/stdc++.h> 
-#include <sys/stat.h> 
-#include <sys/types.h> 
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
 int main(int argc, char const *argv[])
 {
-    struct stat info;
-    int statRC = stat("fs", &info);
-    if (statRC != 0) {
-        if (errno == ENOENT) {
-            int mkdirRC = mkdir("fs", 0777);
-            if (mkdirRC != 0) {
-                cerr << "ERROR: " << strerror(errno) << endl;
-            } else {
-                cout << "partition directory created." << endl;
-            }
-        }
-        else if (errno == ENOTDIR) cout << "path is not a directory." << endl;
+    fstream sec_mem_stream("sec_memory", ios::in | ios::out | ios::ate);
+    cout << sec_mem_stream.tellg() << endl;
+    sec_mem_stream.seekg(0);
+    if (sec_mem_stream.peek() == 0) {
+        cout << "empty disk" << endl;
+        // TODO: Initialize disk.
+    } else {
+        cout << "looking for partition table" << endl;
+        // TODO: Open partition table.
     }
     return 0;
 }

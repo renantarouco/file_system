@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(file_system VERSION 0.0.0 LANGUAGES CXX)
+project(file_system)
 add_compile_options(-std=c++11)
 
 include_directories(
