@@ -28,6 +28,6 @@ add_executable(
 )
 
 add_executable(
-    format
-    src/cli/format.cpp
+    format_tool
+    src/cli/format_tool.cpp
 )
