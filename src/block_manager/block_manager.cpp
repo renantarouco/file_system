@@ -9,6 +9,7 @@ std::vector<int> BlockManager::get_available_blocks(int n) {
     for (int i = 0; i < _bitmap.size() && n > 0; ++i) {
         if (!_bitmap[i]) {
             available_ids.push_back(i);
+            _bitmap[i] = true;
             n--;
         }
     }
