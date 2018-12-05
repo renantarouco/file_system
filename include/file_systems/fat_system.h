@@ -27,6 +27,7 @@ public:
     FATSystem();
     void init(int, int);
     std::vector<FileDescriptor> get_files_descriptors(std::string abs_path);
+    bool create_file(std::string abs_path, int size, std::string text);
     bool create_directory(std::string);
     bool directory_exists(std::string abs_path);
 };

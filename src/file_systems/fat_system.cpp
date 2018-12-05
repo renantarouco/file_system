@@ -137,10 +137,11 @@ bool FATSystem::create_directory(std::string abs_path) {
     if (table_end == 0) {
         FileDescriptor dir;
         dir.name = dir_name;
-        dir.pos = 20; //pede pro block
+        dir.pos = 20; //@TODO: pede pro block
         dir.size = 1;
         dir.file_type = 'd';
         dir.creation_time = std::chrono::system_clock::now();
+        //v1.0 - nao precisa verificar se vai caber o string
         _sec_mem_driver.write_data(*(ans.end() - 1), _block_size, 0, dir.to_str());
     } else {
         std::string table_str(block_data.begin(), block_data.begin() + table_end);
@@ -156,11 +157,52 @@ bool FATSystem::create_directory(std::string abs_path) {
 
         FileDescriptor dir;
         dir.name = dir_name;
-        dir.pos = 2;//pede pro block
+        dir.pos = 2;//@TODO: pede pro block
         dir.size = 1;
         dir.file_type = 'd';
         dir.creation_time = std::chrono::system_clock::now();
-        _sec_mem_driver.write_data(*(ans.end() - 1), _block_size, off_set, dir.to_str());
+        std::string w_str = dir.to_str();
+        int new_block_size = off_set + w_str.size();
+        if(new_block_size > _block_size) {
+            int new_block = 55; //@TODO: pede novo bloco pro block_manager
+            fat[*(ans.end() - 1)] = new_block;
+            _sec_mem_driver.write_data(new_block, _block_size, 0, dir.to_str());
+        }
+        else
+            _sec_mem_driver.write_data(*(ans.end() - 1), _block_size, off_set, dir.to_str());
+    }
+}
+
+bool FATSystem::create_file(std::string abs_path, int size, std::string text) {
+    std::vector<std::string> directories_names;
+    std::string dir_name = "";
+    for (char c : abs_path) {
+        if (c != '/') dir_name.push_back(c);
+        else {
+            directories_names.push_back(dir_name);
+            dir_name.clear();
+        }
+    }
+
+    //@TODO: write in directory new file
+
+
+    int blocks_number = std::ceil(size/_block_size);
+
+    std::vector<int> blocks{10, 11}; //@TODO: pede pro block
+
+    int i;
+    std::string write_str;
+    for(i = 0 ; i < blocks_number ; i++) {
+        write_str = text.substr(_block_size*i, _block_size*(i + 1));
+        if(write_str.size() > 0)
+        {
+            _sec_mem_driver.write_data(blocks[i], _block_size, 0, write_str);
+        }
+
+        if(i > 0) {
+            fat[blocks[i - 1]] = blocks[i];
+        }
     }
 }
 
