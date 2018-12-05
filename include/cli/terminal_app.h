@@ -20,6 +20,7 @@ private:
     void _trim_r(std::string &);
     std::vector<std::string> _tokenize_command(std::string);
     std::vector<std::string> _tokenize_path(std::string);
+    void _print_terminal_command_line(bool);
 public:
     void init(std::string);
     void exec();

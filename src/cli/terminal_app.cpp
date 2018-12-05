@@ -44,6 +44,19 @@ std::vector<std::string> TerminalApp::_tokenize_path(std::string path_str) {
     return path;
 }
 
+void TerminalApp::_print_terminal_command_line(bool status) {
+    if (status) std::cout << "\033[1;32m";
+    else std::cout << "\033[1;31m";
+    std::cout << '#' << ' ';
+    std::cout << "\033[1;34m" << '/';
+    for (std::string dir_name : _working_path) {
+        std::cout << dir_name;
+        std::cout << '/';
+    }
+    std::cout << ' ';
+    std::cout << "\033[1;37m" << "$ " << "\033[0m";
+}
+
 void TerminalApp::init(std::string config_path) {
     std::ifstream config_file(config_path);
     json config_json;
@@ -68,34 +81,25 @@ void TerminalApp::init(std::string config_path) {
 }
 
 void TerminalApp::exec() {
-    bool success = true;
+    bool status = true;
     while(1) {
-        if (success) std::cout << "\033[1;32m";
-        else std::cout << "\033[1;31m";
-        std::cout << '#' << ' ';
-        std::cout << "\033[1;34m" << '/';
-        for (std::string dir_name : _working_path) {
-            std::cout << dir_name;
-            std::cout << '/';
-        }
-        std::cout << ' ';
-        std::cout << "\033[1;37m" << "$ " << "\033[0m";
+        _print_terminal_command_line(status);
         std::string command;
         std::getline(std::cin, command);
         std::vector<std::string> command_tkns = _tokenize_command(command);
         if (command_tkns[0] == "exit") return;
         else if (command_tkns[0] == "mkdir") {
             std::cout << "FileSystem::mkdir" << std::endl;
-            success = true;
+            status = true;
         }
         else if (command_tkns[0] == "cd") {
             if (command_tkns.size() < 2) {
                 std::cout << "usage: cd <DIR_NAME>" << std::endl;
-                success = false;
+                status = false;
             } else {
                 std::cout << "FileSystem::cd" << std::endl;
                 _working_path.push_back(command_tkns[1]);
-                success = true;
+                status = true;
             }
         }
         else if (command_tkns[0] == "ls") {
