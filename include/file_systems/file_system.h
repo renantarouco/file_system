@@ -21,11 +21,14 @@ protected:
     SecMemDriver _sec_mem_driver;
     BlockManager _block_manager;
     FileDescriptor _root_fd;
+    virtual std::vector<int> _get_block_stream(int) = 0;
+    virtual std::vector<int> _get_directory_block_stream(std::vector<std::string>) = 0;
 public:
     FileSystem();
     FileSystem(int, int);
-    virtual void init(int, int);
-    virtual bool create_directory(std::string) = 0;
+    virtual bool mkdir(std::vector<std::string>) = 0;
+    virtual bool cd(std::vector<std::string>) = 0;
+    virtual std::vector<FileDescriptor> ls(std::vector<std::string>) = 0;
 };
 
 #endif

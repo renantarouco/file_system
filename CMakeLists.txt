@@ -36,7 +36,6 @@ target_link_libraries(
     file_systems
     sec_mem_driver
     block_manager
-    nlohmann_json::nlohmann_json
 )
 
 # EXECUTABLES
@@ -52,4 +51,5 @@ add_executable(
 target_link_libraries(
     terminal
     file_systems
+    nlohmann_json::nlohmann_json
 )

@@ -1,10 +1,25 @@
 #include <file_systems/inode_system.h>
 
-#include <iostream>
-
 INodeSystem::INodeSystem() {}
 
-bool INodeSystem::create_directory(std::string abs_path) {
-    std::cout << "inode create directory" << std::endl;
-    return false;
+INodeSystem::INodeSystem(int ps, int bs) : FileSystem(ps, bs) {}
+
+std::vector<int> INodeSystem::_get_block_stream(int head) {
+    
+}
+
+std::vector<int> INodeSystem::_get_directory_block_stream(std::vector<std::string> path) {
+    
+}
+
+bool INodeSystem::mkdir(std::vector<std::string> path) {
+    
+}
+
+bool INodeSystem::cd(std::vector<std::string> path) {
+    
+}
+
+std::vector<FileDescriptor> INodeSystem::ls(std::vector<std::string> path) {
+    
 }

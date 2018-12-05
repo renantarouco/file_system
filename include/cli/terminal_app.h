@@ -15,7 +15,7 @@ using json = nlohmann::json;
 class TerminalApp {
 private:
     FileSystem *_fs;
-    std::string _working_dir;
+    std::vector<std::string> _working_path;
     void _trim_l(std::string &);
     void _trim_r(std::string &);
     std::vector<std::string> _tokenize_command(std::string);

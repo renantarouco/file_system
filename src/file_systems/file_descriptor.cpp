@@ -1,5 +1,7 @@
 #include <file_systems/file_descriptor.h>
 
+FileDescriptor::FileDescriptor() {}
+
 FileDescriptor::FileDescriptor(
     std::string _name, int _pos, int _size, char _file_type, std::chrono::system_clock::time_point _creation_time
 ) :
@@ -11,7 +13,7 @@ std::string FileDescriptor::to_str() {
     descss << std::to_string(pos) << ' ';
     descss << std::to_string(size) << ' ';
     descss << 'd' << ' ';
-    std::time_t ct_c = std::chrono::system_clock::to_time_t(creation_time - std::chrono::hours(24));
+    std::time_t ct_c = std::chrono::system_clock::to_time_t(creation_time);
     descss << std::put_time(std::localtime(&ct_c), "%F %T") << std::endl;
     return descss.str();
 }
@@ -26,12 +28,19 @@ FileDescriptor FileDescriptor::from_str(std::string description) {
 }
 
 std::vector<FileDescriptor> FileDescriptor::from_table_str(std::string table_str) {
-    std::stringstream tabless(table_str);
-    std::string fd_str;
-    std::vector<FileDescriptor> file_descriptors;
-    while (!tabless.eof()) {
-        std::getline(tabless, fd_str);
-        file_descriptors.push_back(FileDescriptor::from_str(fd_str));
+    std::vector<std::string> file_desc_strs;
+    std::string fd_str = "";
+    for (char c : table_str) {
+        if (c != '\n') {
+            fd_str.push_back(c);
+        } else {
+            file_desc_strs.push_back(fd_str);
+            fd_str.clear();
+        }
     }
-    return file_descriptors;
+    std::vector<FileDescriptor> fds;
+    for (std::string fdstr : file_desc_strs) {
+        fds.push_back(FileDescriptor::from_str(fdstr));
+    }
+    return fds;
 }

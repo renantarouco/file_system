@@ -51,22 +51,20 @@ void TerminalApp::init(std::string config_path) {
     std::string fs_model_str = config_json["model"].get<std::string>();
     int ps = config_json["ps"].get<int>();
     int bs = config_json["bs"].get<int>();
-    if (fs_model_str == "fat") _fs = new FATSystem();
-    else if (fs_model_str == "inode") _fs = new INodeSystem();
+    std::cout << "initializing file system..." << std::endl << std::endl;
+    if (fs_model_str == "fat") _fs = new FATSystem(ps, bs);
+    else if (fs_model_str == "inode") _fs = new INodeSystem(ps, bs);
     else {
         std::cerr << "unsupported file system model" << std::endl;
         return;
     }
-    std::cout << "initializing file system..." << std::endl << std::endl;
     std::cout << std::left << std::setw(8) << "model" << " ";
     std::cout << std::left << std::setw(8) << "ps" << " ";
     std::cout << std::left << std::setw(8) << "bs" << std::endl;
     std::cout << std::left << std::setw(8) << fs_model_str << " ";
     std::cout << std::left << std::setw(8) << ps << " ";
     std::cout << std::left << std::setw(8) << bs << std::endl << std::endl;
-    _fs->init(ps, bs);
     std::cout << "... done." << std::endl << std::endl;
-    _working_dir = "";
 }
 
 void TerminalApp::exec() {
@@ -75,14 +73,19 @@ void TerminalApp::exec() {
         if (success) std::cout << "\033[1;32m";
         else std::cout << "\033[1;31m";
         std::cout << '#' << ' ';
-        std::cout << "\033[1;34m" << '/' << _working_dir << ' ';
+        std::cout << "\033[1;34m" << '/';
+        for (std::string dir_name : _working_path) {
+            std::cout << dir_name;
+            std::cout << '/';
+        }
+        std::cout << ' ';
         std::cout << "\033[1;37m" << "$ " << "\033[0m";
         std::string command;
         std::getline(std::cin, command);
         std::vector<std::string> command_tkns = _tokenize_command(command);
         if (command_tkns[0] == "exit") return;
         else if (command_tkns[0] == "mkdir") {
-            std::cout << "FileSystem::create_directory" << std::endl;
+            std::cout << "FileSystem::mkdir" << std::endl;
             success = true;
         }
         else if (command_tkns[0] == "cd") {
@@ -90,15 +93,17 @@ void TerminalApp::exec() {
                 std::cout << "usage: cd <DIR_NAME>" << std::endl;
                 success = false;
             } else {
-                std::cout << "FileSystem::directory_exists" << std::endl;
-                _working_dir.push_back('/');
-                _working_dir.append(command_tkns[1]);
+                std::cout << "FileSystem::cd" << std::endl;
+                _working_path.push_back(command_tkns[1]);
                 success = true;
             }
         }
         else if (command_tkns[0] == "ls") {
-            std::cout << "FileSystem::directory_detail" << std::endl;
-            success = false;
+            std::vector<FileDescriptor> files_des = _fs->ls(_working_path);
+            std::cout << files_des.size() << std::endl;
+            for (FileDescriptor fd : files_des) {
+                std::cout << fd.to_str();
+            }
         }
         else if (command_tkns[0] == "touch") {}
         else if (command_tkns[0] == "rm") {}
