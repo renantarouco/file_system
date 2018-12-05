@@ -16,3 +16,9 @@ std::vector<int> BlockManager::get_available_blocks(int n) {
     if (!n) return available_ids;
     return std::vector<int>();
 }
+
+void BlockManager::occupy_block(int id) {
+    if(id >= 0 && id < _bitmap.size()) {
+        _bitmap[id] = true;
+    }
+}

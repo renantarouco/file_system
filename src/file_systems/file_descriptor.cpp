@@ -12,7 +12,7 @@ std::string FileDescriptor::to_str() {
     descss << name << ' ';
     descss << std::to_string(pos) << ' ';
     descss << std::to_string(size) << ' ';
-    descss << 'd' << ' ';
+    descss << file_type << ' ';
     std::time_t ct_c = std::chrono::system_clock::to_time_t(creation_time);
     descss << std::put_time(std::localtime(&ct_c), "%F %T") << std::endl;
     return descss.str();
