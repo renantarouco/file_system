@@ -51,7 +51,7 @@ void TerminalApp::_print_terminal_command_line(bool status) {
     std::cout << "\033[1;34m" << '/';
     for (std::string dir_name : _working_path) {
         std::cout << dir_name;
-        std::cout << '/';
+        if (dir_name != _working_path.back()) std::cout << '/';
     }
     std::cout << ' ';
     std::cout << "\033[1;37m" << "$ " << "\033[0m";
@@ -97,9 +97,20 @@ void TerminalApp::exec() {
                 std::cout << "usage: cd <DIR_NAME>" << std::endl;
                 status = false;
             } else {
-                std::cout << "FileSystem::cd" << std::endl;
-                _working_path.push_back(command_tkns[1]);
-                status = true;
+                if (command_tkns[1] == "..") {
+                    if (!_working_path.empty()) _working_path.pop_back();
+                } else {
+                    std::vector<std::string> path;
+                    path.insert(path.end(), _working_path.begin(), _working_path.end());
+                    std::vector<std::string> rel_path = _tokenize_path(command_tkns[1]);
+                    path.insert(path.end(), rel_path.begin(), rel_path.end());
+                    if (_fs->cd(path)) {
+                        _working_path = path;
+                        status = true;
+                    } else {
+                        status = false;
+                    }
+                }
             }
         }
         else if (command_tkns[0] == "ls") {
