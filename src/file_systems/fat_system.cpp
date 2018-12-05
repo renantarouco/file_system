@@ -3,11 +3,14 @@
 FATSystem::FATSystem() {}
 
 FATSystem::FATSystem(int ps, int bs) : FileSystem(ps, bs), _fat(_partition_size / _block_size, -1) {
+    _block_manager.occupy_block(0);
     std::vector<std::string> home_path;
     home_path.push_back("home");
     mkdir(home_path);
-    home_path.push_back("igor");
-    mkdir(home_path);
+    //home_path.push_back("igor");
+    //mkdir(home_path);
+    home_path.push_back("dsd.txt");
+    touch(home_path, 512, "blablabla");
 }
 
 std::vector<int> FATSystem::_get_block_stream(int head) {
@@ -70,7 +73,7 @@ bool FATSystem::mkdir(std::vector<std::string> path) {
     if (table_end == 0) {
         // TODO: pedir pro bm
         FileDescriptor dir(
-            dir_name, 20, 1, 'd', std::chrono::system_clock::now()
+            dir_name, _block_manager.get_available_blocks(1)[0], 1, 'd', std::chrono::system_clock::now()
         );
         //v1.0 - nao precisa verificar se vai caber o string
         _sec_mem_driver.write_data(dir_block_stream.back(), _block_size, 0, dir.to_str());
@@ -87,12 +90,12 @@ bool FATSystem::mkdir(std::vector<std::string> path) {
         }
         // TODO: pedir pro bm
         FileDescriptor dir(
-            dir_name, 2, 1, 'd', std::chrono::system_clock::now()
+            dir_name, _block_manager.get_available_blocks(1)[0], 1, 'd', std::chrono::system_clock::now()
         );
         std::string w_str = dir.to_str();
         int new_block_size = off_set + w_str.size();
         if(new_block_size > _block_size) {
-            int new_block = 55; //@TODO: pede novo bloco pro block_manager
+            int new_block = _block_manager.get_available_blocks(1)[0]; //@TODO: pede novo bloco pro block_manager
             _fat[dir_block_stream.back()] = new_block;
             _sec_mem_driver.write_data(new_block, _block_size, 0, dir.to_str());
         }
@@ -115,9 +118,10 @@ bool FATSystem::touch(std::vector<std::string> path, int size, std::string text)
 
     if(dir_block_stream.size() == 0) return false;
 
-    int blocks_number = std::ceil(size/_block_size);
+    int blocks_number = std::ceil((float)size/_block_size);
 
-    std::vector<int> blocks; //@TODO: pede pro block
+    std::vector<int> blocks; 
+    blocks = _block_manager.get_available_blocks(blocks_number);//@TODO: pede pro block
 
     FileDescriptor file;
     std::string block_data = _sec_mem_driver.read_block_data(dir_block_stream.back(), _block_size);
