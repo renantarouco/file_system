@@ -12,7 +12,7 @@ void FATSystem::init(int ps, int bs) {
     create_directory("home");
     create_directory("kkk");
     create_directory("home/oi");
-    std::cout<<(directory_exists("home/oi")?1:0)<<std::endl;
+    std::cout<<(directory_exists("kkk")?1:0)<<std::endl;
 }
 
 int FATSystem::go_to_directory(std::string abs_path) {
@@ -35,8 +35,8 @@ int FATSystem::go_to_directory(std::string abs_path) {
         std::vector<std::string>::iterator it;
         for(it = directories_names.begin() ; it != directories_names.end() ; it++) {
             std::string block_data = _sec_mem_driver.read_block_data(read_header, _block_size);
-            std::cout<<*it<<std::endl;
-            std::cout<<block_data<<std::endl;
+            //std::cout<<*it<<std::endl;
+            //std::cout<<block_data<<std::endl;
             std::size_t table_end = block_data.find('\0');
             if (table_end == block_data.npos) {
                 if(it == (directories_names.end() - 1))
@@ -76,9 +76,9 @@ bool FATSystem::directory_exists(std::string abs_path) {
 }
 
 bool FATSystem::create_directory(std::string abs_path) {
-    std::size_t found = abs_path.find_last_of("/\\");
+    std::size_t found = abs_path.find_last_of("/");
     std::string path, dir_name;
-    if(found = abs_path.npos) {
+    if(found == abs_path.npos) {
         dir_name = abs_path.substr(0, found);
         path = "";
     } else {
@@ -89,8 +89,6 @@ bool FATSystem::create_directory(std::string abs_path) {
 
     int ans;
     ans = go_to_directory(path);
-
-    std::cout<<ans<<std::endl;
 
     if(ans == -1) {
         return false;
