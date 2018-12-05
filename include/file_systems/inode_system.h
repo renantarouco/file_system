@@ -3,5 +3,5 @@
 class INodeSystem : public FileSystem {
 public:
     INodeSystem();
-    void create_directory(std::string);
+    bool create_directory(std::string);
 };
