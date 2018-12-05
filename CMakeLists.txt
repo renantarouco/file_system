@@ -24,6 +24,7 @@ add_library(
 
 add_library(
     file_systems
+    src/file_systems/file_descriptor.cpp
     src/file_systems/file_system.cpp
     src/file_systems/fat_system.cpp
     src/file_systems/inode_system.cpp
@@ -38,19 +39,15 @@ target_link_libraries(
     nlohmann_json::nlohmann_json
 )
 
-#EXECUTABLES
+# EXECUTABLES
 
 add_executable(
     terminal
+    src/cli/terminal_app.cpp
     src/cli/terminal.cpp
 )
 
-add_executable(
-    format_tool
-    src/cli/format_tool.cpp
-)
-
-#EXECUTABLES - LINKS
+# EXECUTABLES - LINKS
 
 target_link_libraries(
     terminal

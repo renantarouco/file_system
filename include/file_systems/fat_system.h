@@ -1,32 +1,27 @@
-#include <file_systems/file_system.h>
+#ifndef _FAT_SYS_H
+#define _FAT_SYS_H
 
+#include <file_systems/file_system.h>
+#include <file_systems/file_descriptor.h>
+
+#include <vector>
 #include <string>
 #include <sstream>
 #include <chrono>
 #include <iomanip>
 
-class FileDescriptor {
-public:
-    std::string name;
-    int pos;
-    int size;
-    char file_type;
-    std::chrono::system_clock::time_point creation_time;
-    std::string to_str();
-    static FileDescriptor from_str(std::string);
-    static std::vector<FileDescriptor> from_table_str(std::string);
-};
-
 class FATSystem : public FileSystem {
 private:
-    FileDescriptor _root_fd;
-    std::vector<int> fat;
-    std::vector<int> go_to_directory(std::string abs_path);
-    std::vector<int> get_all_blocks(int init);
+    std::vector<int> _fat;
+    std::vector<int> _get_block_stream(int);
+    std::vector<int> _get_directory_block_stream(std::vector<std::string>);
 public:
     FATSystem();
-    void init(int, int);
-    std::vector<FileDescriptor> get_files_descriptors(std::string abs_path);
-    bool create_directory(std::string);
-    bool directory_exists(std::string abs_path);
+    FATSystem(int, int);
+    bool mkdir(std::vector<std::string>);
+    bool cd(std::vector<std::string>);
+    bool touch(std::vector<std::string>, int, std::string);
+    std::vector<FileDescriptor> ls(std::vector<std::string>);
 };
+
+#endif

@@ -5,9 +5,8 @@
 
 class SecMemDriver {
 private:
-    std::ifstream _sec_mem_file_ifstream;
-    std::ofstream _sec_mem_file_ofstream;
-    std::vector<std::uint8_t> _bitmap;
+    std::ofstream _fout;
+    std::ifstream _fin;
 public:
     SecMemDriver();
     void init(int, int);
