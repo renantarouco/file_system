@@ -123,6 +123,8 @@ void TerminalApp::exec() {
         else if (command_tkns[0] == "touch") {}
         else if (command_tkns[0] == "rm") {}
         else if (command_tkns[0] == "cat") {}
-        else if (command_tkns[0] == "listmap") {}
+        else if (command_tkns[0] == "listmap") {
+            std::cout << _fs->listmap() << std::endl;
+        }
     }
 }
