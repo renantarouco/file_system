@@ -9,13 +9,32 @@ void FATSystem::init(int ps, int bs) {
     _root_fd.size = 1;
     _root_fd.file_type = 'd';
     _root_fd.creation_time = std::chrono::system_clock::now();
+    fat = std::vector<int>(_partition_size/_block_size, -1);
     create_directory("home");
     create_directory("kkk");
     create_directory("home/oi");
     std::cout<<(directory_exists("kkk")?1:0)<<std::endl;
+    std::vector<FileDescriptor> directories = get_files_descriptors("");
+    for(int i = 0 ; i < directories.size() ; i++) {
+        std::cout<<directories[i].name<<" ";
+    }
+    std::cout<<std::endl;
 }
 
-int FATSystem::go_to_directory(std::string abs_path) {
+std::vector<int> FATSystem::get_all_blocks(int init) {
+    std::vector<int> blocks;
+    blocks.push_back(init);
+    
+    int i = init;
+    while(fat[i] != -1) {
+        i = fat[i];
+        blocks.push_back(i);
+    }
+
+    return blocks;
+}
+
+std::vector<int> FATSystem::go_to_directory(std::string abs_path) {
     std::vector<std::string> directories_names;
     std::string dir_name = "";
     for (char c : abs_path) {
@@ -29,21 +48,19 @@ int FATSystem::go_to_directory(std::string abs_path) {
         directories_names.push_back(dir_name);
 
     if (directories_names.empty()) {
-        return 0;
+        return std::vector<int>{0};
     } else {
         int read_header = 0;
         std::vector<std::string>::iterator it;
         for(it = directories_names.begin() ; it != directories_names.end() ; it++) {
             std::string block_data = _sec_mem_driver.read_block_data(read_header, _block_size);
-            //std::cout<<*it<<std::endl;
-            //std::cout<<block_data<<std::endl;
             std::size_t table_end = block_data.find('\0');
             if (table_end == block_data.npos) {
                 if(it == (directories_names.end() - 1))
                     std::cout<<"the directory is empty"<<std::endl;
                 else
                     std::cout<<"wrong path"<<std::endl;
-                return -1;
+                return std::vector<int>();
             } else {
                 std::string table_str(block_data.begin(), block_data.begin() + table_end);
                 std::vector<FileDescriptor> directories = FileDescriptor::from_table_str(table_str);
@@ -51,28 +68,49 @@ int FATSystem::go_to_directory(std::string abs_path) {
                     if(file.name == *(it)) {
                         if(file.file_type == 'd' && it == (directories_names.end() - 1)) {
                             std::cout<<"success"<<std::endl;
-                            return file.pos;
+                            return get_all_blocks(file.pos);
                         }   
                         else if(file.file_type == 'd')
                             read_header = file.pos;
                         else {
                             std::cout<<(*it)<<" is not a directory"<<std::endl;
-                            return -1;
+                            return std::vector<int>();
                         }
                     }
                 }
             }
         }
         std::cout<<"wrong path"<<std::endl;
-        return -1;
+        return std::vector<int>();
     }
 }
 
 bool FATSystem::directory_exists(std::string abs_path) {
-    int ans;
+    std::vector<int> ans;
     ans = go_to_directory(abs_path);
 
-    return ans == -1 ? false : true;
+    return ans.size() == 0 ? false : true;
+}
+
+std::vector<FileDescriptor> FATSystem::get_files_descriptors(std::string abs_path) {
+    std::vector<int> ans;
+    ans = go_to_directory(abs_path);
+
+    if(ans.size() == 0) return std::vector<FileDescriptor>();
+
+    std::vector<FileDescriptor> directories;
+    std::vector<int>::iterator it;
+    for(it = ans.begin() ; it != ans.end() ; it++){
+        std::string block_data = _sec_mem_driver.read_block_data(*it, _block_size);
+        int table_end = block_data.find('\0');
+        if(table_end != 0) {
+            std::string table_str(block_data.begin(), block_data.begin() + table_end);
+            std::vector<FileDescriptor> directories_l;
+            directories_l = FileDescriptor::from_table_str(table_str);
+            directories.insert(directories.end(), directories_l.begin(), directories_l.end());
+        }
+    }
+    return directories;
 }
 
 bool FATSystem::create_directory(std::string abs_path) {
@@ -87,14 +125,14 @@ bool FATSystem::create_directory(std::string abs_path) {
     }
 
 
-    int ans;
+    std::vector<int> ans;
     ans = go_to_directory(path);
 
-    if(ans == -1) {
+    if(ans.size() == 0) {
         return false;
     }
 
-    std::string block_data = _sec_mem_driver.read_block_data(ans, _block_size);
+    std::string block_data = _sec_mem_driver.read_block_data(*(ans.end() - 1), _block_size);
     int table_end = block_data.find('\0');
     if (table_end == 0) {
         FileDescriptor dir;
@@ -103,7 +141,7 @@ bool FATSystem::create_directory(std::string abs_path) {
         dir.size = 1;
         dir.file_type = 'd';
         dir.creation_time = std::chrono::system_clock::now();
-        _sec_mem_driver.write_data(ans, _block_size, 0, dir.to_str());
+        _sec_mem_driver.write_data(*(ans.end() - 1), _block_size, 0, dir.to_str());
     } else {
         std::string table_str(block_data.begin(), block_data.begin() + table_end);
         std::vector<FileDescriptor> directories = FileDescriptor::from_table_str(table_str);
@@ -122,10 +160,50 @@ bool FATSystem::create_directory(std::string abs_path) {
         dir.size = 1;
         dir.file_type = 'd';
         dir.creation_time = std::chrono::system_clock::now();
-        _sec_mem_driver.write_data(ans, _block_size, off_set, dir.to_str());
+        _sec_mem_driver.write_data(*(ans.end() - 1), _block_size, off_set, dir.to_str());
     }
+}
+
+std::string FileDescriptor::to_str() {
+    std::stringstream descss;
+    descss << name << ' ';
+    descss << std::to_string(pos) << ' ';
+    descss << std::to_string(size) << ' ';
+    descss << 'd' << ' ';
+    std::time_t ct_c = std::chrono::system_clock::to_time_t(creation_time - std::chrono::hours(24));
+    descss << std::put_time(std::localtime(&ct_c), "%F %T") << std::endl;
+    return descss.str();
+}
+
+FileDescriptor FileDescriptor::from_str(std::string description) {
+    std::stringstream descss(description);
+    FileDescriptor fd;
+    std::tm c_time;
+    descss >> fd.name >> fd.pos >> fd.size >> fd.file_type >> std::get_time(&c_time, "%F %T");
+    fd.creation_time = std::chrono::system_clock::from_time_t(std::mktime(&c_time));
+    return fd;
+}
+
+std::vector<FileDescriptor> FileDescriptor::from_table_str(std::string table_description) {
+    std::vector<std::string> file_desc_strs;
+    std::string fd_str = "";
+    for (char c : table_description) {
+        if (c != '\n') {
+            fd_str.push_back(c);
+        } else {
+            file_desc_strs.push_back(fd_str);
+            fd_str.clear();
+        }
+    }
+    std::vector<FileDescriptor> fds;
+    for (std::string fdstr : file_desc_strs) {
+        fds.push_back(FileDescriptor::from_str(fdstr));
+    }
+    return fds;
+}
 
 
+//possivelmente util
     /*std::vector<std::string> directories_names;
     std::string dir_name = "";
     for (char c : abs_path) {
@@ -167,42 +245,3 @@ bool FATSystem::create_directory(std::string abs_path) {
     } else {
 
     }*/
-}
-
-std::string FileDescriptor::to_str() {
-    std::stringstream descss;
-    descss << name << ' ';
-    descss << std::to_string(pos) << ' ';
-    descss << std::to_string(size) << ' ';
-    descss << 'd' << ' ';
-    std::time_t ct_c = std::chrono::system_clock::to_time_t(creation_time - std::chrono::hours(24));
-    descss << std::put_time(std::localtime(&ct_c), "%F %T") << std::endl;
-    return descss.str();
-}
-
-FileDescriptor FileDescriptor::from_str(std::string description) {
-    std::stringstream descss(description);
-    FileDescriptor fd;
-    std::tm c_time;
-    descss >> fd.name >> fd.pos >> fd.size >> fd.file_type >> std::get_time(&c_time, "%F %T");
-    fd.creation_time = std::chrono::system_clock::from_time_t(std::mktime(&c_time));
-    return fd;
-}
-
-std::vector<FileDescriptor> FileDescriptor::from_table_str(std::string table_description) {
-    std::vector<std::string> file_desc_strs;
-    std::string fd_str = "";
-    for (char c : table_description) {
-        if (c != '\n') {
-            fd_str.push_back(c);
-        } else {
-            file_desc_strs.push_back(fd_str);
-            fd_str.clear();
-        }
-    }
-    std::vector<FileDescriptor> fds;
-    for (std::string fdstr : file_desc_strs) {
-        fds.push_back(FileDescriptor::from_str(fdstr));
-    }
-    return fds;
-}

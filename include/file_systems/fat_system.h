@@ -20,11 +20,13 @@ public:
 class FATSystem : public FileSystem {
 private:
     FileDescriptor _root_fd;
-
-    int go_to_directory(std::string abs_path);
+    std::vector<int> fat;
+    std::vector<int> go_to_directory(std::string abs_path);
+    std::vector<int> get_all_blocks(int init);
 public:
     FATSystem();
     void init(int, int);
+    std::vector<FileDescriptor> get_files_descriptors(std::string abs_path);
     bool create_directory(std::string);
     bool directory_exists(std::string abs_path);
 };
