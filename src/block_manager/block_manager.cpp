@@ -22,3 +22,12 @@ void BlockManager::occupy_block(int id) {
         _bitmap[id] = true;
     }
 }
+
+std::string BlockManager::bitmap_str() {
+    std::string bitmaps;
+    for (bool occ : _bitmap) {
+        if (occ) bitmaps.push_back('1');
+        else bitmaps.push_back('0');
+    }
+    return bitmaps;
+}

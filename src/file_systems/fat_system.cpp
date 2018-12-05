@@ -64,7 +64,6 @@ std::vector<int> FATSystem::_get_directory_block_stream(std::vector<std::string>
 bool FATSystem::mkdir(std::vector<std::string> path) {
     std::string dir_name = path.back();
     path.pop_back();
-    std::cout << path.size() << std::endl;
     std::vector<int> dir_block_stream;
     dir_block_stream = _get_directory_block_stream(path);
     if(dir_block_stream.size() == 0) return false;
