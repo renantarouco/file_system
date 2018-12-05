@@ -10,7 +10,7 @@ FATSystem::FATSystem(int ps, int bs) : FileSystem(ps, bs), _fat(_partition_size 
     //home_path.push_back("igor");
     //mkdir(home_path);
     home_path.push_back("dsd.txt");
-    touch(home_path, 512, "blablabla");
+    touch(home_path, 2048, "blablabla");
 }
 
 std::vector<int> FATSystem::_get_block_stream(int head) {
@@ -120,8 +120,12 @@ bool FATSystem::touch(std::vector<std::string> path, int size, std::string text)
 
     int blocks_number = std::ceil((float)size/_block_size);
 
+    std::cout<<_block_size<<std::endl;
+
     std::vector<int> blocks; 
     blocks = _block_manager.get_available_blocks(blocks_number);//@TODO: pede pro block
+
+    std::cout<<blocks.size()<<std::endl;
 
     FileDescriptor file;
     std::string block_data = _sec_mem_driver.read_block_data(dir_block_stream.back(), _block_size);
@@ -130,8 +134,10 @@ bool FATSystem::touch(std::vector<std::string> path, int size, std::string text)
         file = FileDescriptor(
             file_name, blocks[0], blocks_number, 'f', std::chrono::system_clock::now()
         );
+
         //v1.0 - nao precisa verificar se vai caber o string
         _sec_mem_driver.write_data(dir_block_stream.back(), _block_size, 0, file.to_str());
+
     } else {
         std::string table_str(block_data.begin(), block_data.begin() + table_end);
         std::vector<FileDescriptor> directories = FileDescriptor::from_table_str(table_str);
@@ -157,9 +163,16 @@ bool FATSystem::touch(std::vector<std::string> path, int size, std::string text)
         else _sec_mem_driver.write_data(dir_block_stream.back(), _block_size, off_set, file.to_str());
     }
 
-    int i;
-    std::string write_str;
-    for(i = 0 ; i < blocks_number ; i++) {
+    int i = 0;
+    char *data = new char[_block_size];
+    std::stringstream textss(text);
+    while (!textss.eof()) {
+        textss.read(data, _block_size);
+        _sec_mem_driver.write_data(blocks[i], _block_size, 0, std::string(data));
+        i++;
+    }
+    /*for(i = 0 ; i < blocks_number ; i++) {
+        
         write_str = text.substr(_block_size*i, _block_size*(i + 1));
         if(write_str.size() > 0)
         {
@@ -169,7 +182,7 @@ bool FATSystem::touch(std::vector<std::string> path, int size, std::string text)
         if(i > 0) {
             _fat[blocks[i - 1]] = blocks[i];
         }
-    }
+    }*/
 }
 
 std::vector<FileDescriptor> FATSystem::ls(std::vector<std::string> path) {
