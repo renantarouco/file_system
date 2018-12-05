@@ -4,6 +4,6 @@
 
 INodeSystem::INodeSystem() {}
 
-void INodeSystem::create_directory(std::string abs_path) {
+bool INodeSystem::create_directory(std::string abs_path) {
     std::cout << "inode create directory" << std::endl;
 }

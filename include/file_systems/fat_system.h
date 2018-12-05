@@ -20,8 +20,11 @@ public:
 class FATSystem : public FileSystem {
 private:
     FileDescriptor _root_fd;
+
+    int go_to_directory(std::string abs_path);
 public:
     FATSystem();
     void init(int, int);
-    void create_directory(std::string);
+    bool create_directory(std::string);
+    bool directory_exists(std::string abs_path);
 };

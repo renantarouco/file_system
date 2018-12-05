@@ -20,7 +20,7 @@ protected:
     BlockManager _block_manager;
 public:
     virtual void init(int, int);
-    virtual void create_directory(std::string) = 0;
+    virtual bool create_directory(std::string) = 0;
 };
 
 #endif
