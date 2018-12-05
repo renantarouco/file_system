@@ -89,8 +89,15 @@ void TerminalApp::exec() {
         std::vector<std::string> command_tkns = _tokenize_command(command);
         if (command_tkns[0] == "exit") return;
         else if (command_tkns[0] == "mkdir") {
-            std::cout << "FileSystem::mkdir" << std::endl;
-            status = true;
+            if (command_tkns.size() < 2) {
+                std::cout << "usage: mkdir <DIR_NAME>" << std::endl;
+                status = false;
+            } else {
+                std::vector<std::string> path;
+                path.insert(path.end(), _working_path.begin(), _working_path.end());
+                path.push_back(command_tkns[1]);
+                status = _fs->mkdir(path);
+            }
         }
         else if (command_tkns[0] == "cd") {
             if (command_tkns.size() < 2) {
@@ -120,7 +127,17 @@ void TerminalApp::exec() {
                 std::cout << fd.to_str();
             }
         }
-        else if (command_tkns[0] == "touch") {}
+        else if (command_tkns[0] == "touch") {
+            if (command_tkns.size() < 4) {
+                std::cout << "usage: touch <FILE_NAME> <FILE_SIZE> <DATA>" << std::endl;
+                status = false;
+            } else {
+                std::vector<std::string> path;
+                path.insert(path.end(), _working_path.begin(), _working_path.end());
+                path.push_back(command_tkns[1]);
+                status = _fs->touch(path, std::stoi(command_tkns[2]), command_tkns[3]);
+            }
+        }
         else if (command_tkns[0] == "rm") {}
         else if (command_tkns[0] == "cat") {}
         else if (command_tkns[0] == "listmap") {

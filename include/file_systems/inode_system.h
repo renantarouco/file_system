@@ -10,4 +10,5 @@ public:
     bool mkdir(std::vector<std::string>);
     bool cd(std::vector<std::string>);
     std::vector<FileDescriptor> ls(std::vector<std::string>);
+    bool touch(std::vector<std::string>, int, std::string);
 };
