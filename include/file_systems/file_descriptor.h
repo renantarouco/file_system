@@ -17,6 +17,7 @@ struct FileDescriptor {
     FileDescriptor();
     FileDescriptor(std::string, int, int, char, std::chrono::system_clock::time_point);
     std::string to_str();
+    static FileDescriptor from_inode_header(std::string);
     static FileDescriptor from_str(std::string);
     static std::vector<FileDescriptor> from_table_str(std::string);
 };
