@@ -139,7 +139,23 @@ void TerminalApp::exec() {
             }
         }
         else if (command_tkns[0] == "rm") {}
-        else if (command_tkns[0] == "cat") {}
+        else if (command_tkns[0] == "cat") {
+            if (command_tkns.size() < 2) {
+                std::cout << "usage: cat <FILE_NAME>" << std::endl;
+                status = false;
+            } else{
+                std::vector<std::string> path;
+                path.insert(path.end(), _working_path.begin(), _working_path.end());
+                path.push_back(command_tkns[1]);
+                std::string data;
+                data = _fs->cat(path);
+                if(data == "") {
+                    std::cout<<"File not found!"<<std::endl;
+                } else {
+                    std::cout<<data<<std::endl;
+                }
+            }
+        }
         else if (command_tkns[0] == "listmap") {
             std::cout << _fs->listmap() << std::endl;
         }

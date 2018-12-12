@@ -27,3 +27,7 @@ std::vector<FileDescriptor> INodeSystem::ls(std::vector<std::string> path) {
 bool INodeSystem::touch(std::vector<std::string>, int, std::string) {
     
 }
+
+std::string INodeSystem::cat(std::vector<std::string> path) {
+    
+}

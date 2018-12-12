@@ -30,6 +30,7 @@ public:
     virtual bool cd(std::vector<std::string>) = 0;
     virtual std::vector<FileDescriptor> ls(std::vector<std::string>) = 0;
     virtual bool touch(std::vector<std::string>, int, std::string) = 0;
+    virtual std::string cat(std::vector<std::string> path) = 0;
     virtual std::string listmap();
 };
 

@@ -122,7 +122,16 @@ bool FATSystem::touch(std::vector<std::string> path, int size, std::string text)
     std::cout<<_block_size<<std::endl;
 
     std::vector<int> blocks; 
-    blocks = _block_manager.get_available_blocks(blocks_number);//@TODO: pede pro block
+    blocks = _block_manager.get_available_blocks(blocks_number);
+    
+    int i;
+    for(i = 0 ; i < blocks.size() ; i++) {
+        if(i < blocks.size() - 1) {
+            _fat[blocks[i]] = blocks[i+1];
+        }
+    }
+
+    _fat[blocks[i-1]] = -1;
 
     std::cout<<blocks.size()<<std::endl;
 
@@ -155,14 +164,14 @@ bool FATSystem::touch(std::vector<std::string> path, int size, std::string text)
         int new_block_size = off_set + w_str.size();
         if(new_block_size > _block_size) {
             //mudar size no diretorio anterior
-            int new_block = 55; //@TODO: pede novo bloco pro block_manager
+            int new_block = _block_manager.get_available_blocks(1)[0]; //@TODO: pede novo bloco pro block_manager
             _fat[dir_block_stream.back()] = new_block;
             _sec_mem_driver.write_data(new_block, _block_size, 0, file.to_str());
         }
         else _sec_mem_driver.write_data(dir_block_stream.back(), _block_size, off_set, file.to_str());
     }
 
-    int i = 0;
+    i = 0;
     char *data = new char[_block_size];
     std::stringstream textss(text);
     while (!textss.eof()) {
@@ -170,18 +179,6 @@ bool FATSystem::touch(std::vector<std::string> path, int size, std::string text)
         _sec_mem_driver.write_data(blocks[i], _block_size, 0, std::string(data));
         i++;
     }
-    /*for(i = 0 ; i < blocks_number ; i++) {
-        
-        write_str = text.substr(_block_size*i, _block_size*(i + 1));
-        if(write_str.size() > 0)
-        {
-            _sec_mem_driver.write_data(blocks[i], _block_size, 0, write_str);
-        }
-
-        if(i > 0) {
-            _fat[blocks[i - 1]] = blocks[i];
-        }
-    }*/
 }
 
 std::vector<FileDescriptor> FATSystem::ls(std::vector<std::string> path) {
@@ -200,4 +197,40 @@ std::vector<FileDescriptor> FATSystem::ls(std::vector<std::string> path) {
         }
     }
     return directories;
+}
+
+std::string FATSystem::cat(std::vector<std::string> path) {
+    std::string file_name = *(path.end() - 1);
+    path.erase((path.end() - 1));
+    std::vector<int> dir_block_stream = _get_directory_block_stream(path);
+
+    std::vector<int>::iterator it;
+    std::vector<FileDescriptor>::iterator jt;
+    std::string text;
+
+    for(it = dir_block_stream.begin() ; it != dir_block_stream.end() ; it++) {
+        std::string block_data = _sec_mem_driver.read_block_data(*it, _block_size);
+        int table_end = block_data.find('\0');
+        if(table_end != 0) {
+            std::string table_str(block_data.begin(), block_data.begin() + table_end);
+            std::vector<FileDescriptor> directories_l;
+            directories_l = FileDescriptor::from_table_str(table_str);
+            for(jt = directories_l.begin() ; jt != directories_l.end() ; jt++) {
+                if(file_name == jt->name) {
+                    if(jt->file_type == 'f'){
+                        std::vector<int> blocks;
+                        blocks = _get_block_stream(jt->pos);
+                        std::cout<<blocks.size()<<std::endl;
+                        std::vector<int>::iterator kt;
+                        for(kt = blocks.begin() ; kt != blocks.end() ; kt++) {
+                            std::string file_data = _sec_mem_driver.read_block_data(*kt, _block_size);
+                            text.append(file_data);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return text;
+
 }

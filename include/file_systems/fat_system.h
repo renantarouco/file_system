@@ -22,6 +22,7 @@ public:
     bool cd(std::vector<std::string>);
     bool touch(std::vector<std::string>, int, std::string);
     std::vector<FileDescriptor> ls(std::vector<std::string>);
+    std::string cat(std::vector<std::string> path);
 };
 
 
