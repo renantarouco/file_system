@@ -18,6 +18,15 @@ std::string FileDescriptor::to_str() {
     return descss.str();
 }
 
+FileDescriptor FileDescriptor::from_inode_header(std::string description) {
+    std::stringstream descss(description);
+    FileDescriptor fd;
+    std::tm c_time;
+    descss >> fd.name >> fd.size >> fd.file_type >> std::get_time(&c_time, "%F %T");
+    fd.creation_time = std::chrono::system_clock::from_time_t(std::mktime(&c_time));
+    return fd;
+}
+
 FileDescriptor FileDescriptor::from_str(std::string description) {
     std::stringstream descss(description);
     FileDescriptor fd;
