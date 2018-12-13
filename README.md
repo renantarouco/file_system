@@ -1,6 +1,11 @@
 # Baixando
-
-    git clone --recursive https://github.com/renantarouco/file_system
+    
+    git clone https://github.com/renantarouco/file_system
+    cd file_system
+    mkdir lib
+    cd lib
+    git clone https://github.com/nlohmann/json
+    mv json nlohmann_json
 
 # Compilando
     
