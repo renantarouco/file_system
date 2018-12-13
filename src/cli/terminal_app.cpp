@@ -122,7 +122,6 @@ void TerminalApp::exec() {
         }
         else if (command_tkns[0] == "ls") {
             std::vector<FileDescriptor> files_des = _fs->ls(_working_path);
-            std::cout << files_des.size() << std::endl;
             for (FileDescriptor fd : files_des) {
                 std::cout << fd.to_str();
             }
@@ -138,7 +137,17 @@ void TerminalApp::exec() {
                 status = _fs->touch(path, std::stoi(command_tkns[2]), command_tkns[3]);
             }
         }
-        else if (command_tkns[0] == "rm") {}
+        else if (command_tkns[0] == "rm") {
+            if (command_tkns.size() < 2) {
+                std::cout << "usage: rm <FILE_NAME>" << std::endl;
+                status = false;
+            } else{
+                std::vector<std::string> path;
+                path.insert(path.end(), _working_path.begin(), _working_path.end());
+                path.push_back(command_tkns[1]);
+                _fs->rm(path);
+            }
+        }
         else if (command_tkns[0] == "cat") {
             if (command_tkns.size() < 2) {
                 std::cout << "usage: cat <FILE_NAME>" << std::endl;
@@ -149,9 +158,7 @@ void TerminalApp::exec() {
                 path.push_back(command_tkns[1]);
                 std::string data;
                 data = _fs->cat(path);
-                if(data == "") {
-                    std::cout<<"File not found!"<<std::endl;
-                } else {
+                if(data != "") {
                     std::cout<<data<<std::endl;
                 }
             }
