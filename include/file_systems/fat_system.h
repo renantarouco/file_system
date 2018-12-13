@@ -14,7 +14,8 @@ class FATSystem : public FileSystem {
 private:
     std::vector<int> _fat;
     std::vector<int> _get_block_stream(int);
-    std::vector<int> _get_directory_block_stream(std::vector<std::string>);
+    std::vector<int> _get_block_stream(std::vector<std::string> path, char file_type);
+    void _free_fat(std::vector<int> blocks);
 public:
     FATSystem();
     FATSystem(int, int);
@@ -22,6 +23,7 @@ public:
     bool cd(std::vector<std::string>);
     bool touch(std::vector<std::string>, int, std::string);
     std::vector<FileDescriptor> ls(std::vector<std::string>);
+    bool rm(std::vector<std::string> path);
     std::string cat(std::vector<std::string> path);
 };
 
