@@ -23,6 +23,24 @@ void BlockManager::occupy_block(int id) {
     }
 }
 
+void BlockManager::occupy_block(std::vector<int> ids) {
+    for(int id: ids) { 
+        occupy_block(id);
+    }
+}
+
+void BlockManager::free_block(int id) {
+    if(id >= 0 && id < _bitmap.size()) {
+        _bitmap[id] = false;
+    }
+}
+
+void BlockManager::free_block(std::vector<int> ids) {
+    for(int id: ids) { 
+        free_block(id);
+    }
+}
+
 std::string BlockManager::bitmap_str() {
     std::string bitmaps;
     for (bool occ : _bitmap) {
