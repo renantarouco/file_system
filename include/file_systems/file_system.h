@@ -22,7 +22,7 @@ protected:
     BlockManager _block_manager;
     FileDescriptor _root_fd;
     virtual std::vector<int> _get_block_stream(int) = 0;
-    virtual std::vector<int> _get_directory_block_stream(std::vector<std::string>) = 0;
+    virtual std::vector<int> _get_block_stream(std::vector<std::string> path, char file_type) = 0;
 public:
     FileSystem();
     FileSystem(int, int);
@@ -31,6 +31,7 @@ public:
     virtual std::vector<FileDescriptor> ls(std::vector<std::string>) = 0;
     virtual bool touch(std::vector<std::string>, int, std::string) = 0;
     virtual std::string cat(std::vector<std::string> path) = 0;
+    virtual bool rm(std::vector<std::string> path) = 0;
     virtual std::string listmap();
 };
 
